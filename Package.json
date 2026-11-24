@@ -1,0 +1,9 @@
+{
+  "name": "perencana-pinjaman-bri",
+  "version": "1.0.0",
+  "description": "Aplikasi Perencana Pinjaman BRI Offline",
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/android": "^6.0.0"
+  }
+}
