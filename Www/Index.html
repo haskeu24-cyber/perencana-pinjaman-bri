@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Perencana Pinjaman BRI (Offline)</title>
+  <style>
+    :root {
+      --bg-page: #F1F5F9;
+      --card-white: #FFFFFF;
+      --bri-blue-dark: #003875;
+      --bri-blue: #00529C;
+      --bri-blue-med: #1A6EC0;
+      --bri-blue-light: #E6F0FA;
+      --bri-blue-border: #CBDCEB;
+      --bri-orange: #F37021;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --success: #15803D;
+      --danger: #B91C1C;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg-page); color: var(--text-main); padding-bottom: 40px; }
+    .header { background: linear-gradient(135deg, var(--bri-blue-dark), var(--bri-blue)); color: #FFFFFF; padding: 18px 16px; text-align: center; border-bottom: 3px solid var(--bri-orange); }
+    .header h1 { font-size: 1.2rem; letter-spacing: 0.4px; margin-bottom: 4px; }
+    .header p { font-size: 0.8rem; color: #DBEAFE; }
+    .container { max-width: 900px; margin: 0 auto; padding: 14px; }
+    .nav-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: #DCE8F5; padding: 5px; border-radius: 12px; margin-bottom: 16px; }
+    .tab-btn { border: none; background: transparent; color: var(--bri-blue-dark); padding: 11px 6px; font-size: 0.8rem; font-weight: 700; border-radius: 9px; cursor: pointer; }
+    .tab-btn.active { background: var(--bri-blue); color: #FFFFFF; }
+    .card { background: var(--card-white); border-radius: 14px; padding: 18px; margin-bottom: 14px; border: 1px solid var(--bri-blue-border); }
+    .card-title { font-size: 0.95rem; font-weight: 700; color: var(--bri-blue-dark); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+    select, input[type="number"], input[type="password"], input[type="text"] { width: 100%; padding: 11px 12px; border: 1.5px solid var(--bri-blue-border); border-radius: 10px; font-size: 0.95rem; background: #F8FAFC; color: var(--text-main); }
+    input[type="range"] { width: 100%; accent-color: var(--bri-blue); margin-top: 8px; }
+    .tenor-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    @media (max-width: 540px) { .tenor-grid { grid-template-columns: repeat(3, 1fr); } .nav-tabs { grid-template-columns: repeat(2, 1fr); } }
+    .tenor-pill { border: 1.5px solid var(--bri-blue-border); background: #F8FAFC; border-radius: 10px; padding: 10px 4px; text-align: center; cursor: pointer; }
+    .tenor-pill .t-bln { font-weight: 700; font-size: 0.88rem; color: var(--bri-blue-dark); }
+    .tenor-pill .t-bunga { font-size: 0.72rem; color: var(--text-muted); }
+    .tenor-pill.active { background: var(--bri-blue); border-color: var(--bri-blue); }
+    .tenor-pill.active .t-bln, .tenor-pill.active .t-bunga { color: #FFFFFF; }
+    .highlight-box { background: linear-gradient(135deg, #EBF3FC, #DCEAFB); border: 1px solid #B6D2F0; border-radius: 12px; padding: 16px; text-align: center; margin-top: 10px; }
+    .highlight-label { font-size: 0.8rem; color: var(--bri-blue-dark); font-weight: 600; }
+    .highlight-amount { font-size: 1.75rem; font-weight: 800; color: var(--bri-blue); margin: 4px 0; font-variant-numeric: tabular-nums; }
+    .summary-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #93B8E0; font-size: 0.8rem; }
+    .summary-item span { display: block; color: var(--text-muted); font-size: 0.72rem; }
+    .summary-item strong { color: var(--bri-blue-dark); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 700; font-size: 0.92rem; cursor: pointer; }
+    .btn-primary { background: var(--bri-blue); color: #FFFFFF; }
+    .btn-outline { background: #FFFFFF; border: 1.5px solid var(--bri-blue); color: var(--bri-blue); margin-top: 8px; }
+    .table-wrap { overflow-x: auto; max-height: 440px; border: 1px solid var(--bri-blue-border); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    th, td { padding: 9px 10px; text-align: right; border-bottom: 1px solid #E2E8F0; }
+    th { background: var(--bri-blue); color: #FFFFFF; position: sticky; top: 0; z-index: 2; }
+    th:first-child, td:first-child { text-align: left; position: sticky; left: 0; background: #EFF6FF; font-weight: 700; color: var(--bri-blue-dark); z-index: 1; }
+    th:first-child { background: var(--bri-blue-dark); color: #FFFFFF; z-index: 3; }
+    .rate-edit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    @media (max-width: 540px) { .rate-edit-grid { grid-template-columns: repeat(2, 1fr); } }
+    .rate-item { background: #F4F8FD; border: 1px solid var(--bri-blue-border); padding: 10px; border-radius: 10px; }
+    .rate-item label { font-size: 0.78rem; color: var(--bri-blue-dark); margin-bottom: 4px; }
+    .rate-input-wrap { display: flex; align-items: center; gap: 4px; }
+    .rate-input-wrap input { padding: 7px 8px; font-size: 0.9rem; font-weight: 700; text-align: right; background: #FFFFFF; }
+    .meta-note { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
+    .hidden { display: none; }
+    .alert { padding: 10px 12px; border-radius: 9px; font-size: 0.84rem; margin-bottom: 12px; font-weight: 600; }
+    .alert-success { background: #DCFCE7; color: var(--success); border: 1px solid #86EFAC; }
+    .alert-danger { background: #FEE2E2; color: var(--danger); border: 1px solid #FCA5A5; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>PERENCANA PINJAMAN BRI</h1>
+    <p>Mode Offline • Simulasi Plafon, Cek Gaji &amp; Pengaturan Bunga</p>
+  </div>
+  <div class="container">
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('simulasi', this)">Simulasi</button>
+      <button class="tab-btn" onclick="switchTab('gaji', this)">Cek Gaji</button>
+      <button class="tab-btn" onclick="switchTab('tabel', this)">Tabel Plafon</button>
+      <button class="tab-btn" onclick="switchTab('bunga', this)">Ubah Bunga</button>
+    </div>
+
+    <div id="tab-simulasi" class="tab-content">
+      <div class="card">
+        <div class="card-title">
+          <span>Pilih Nominal Plafon</span>
+          <span class="meta-note" id="badge-updated">Default Awal (Sesuai Excel)</span>
+        </div>
+        <div class="form-group">
+          <select id="select-plafond" onchange="syncPlafondFromSelect()"></select>
+          <input type="range" id="range-plafond" min="50000000" max="300000000" step="5000000" value="100000000" oninput="syncPlafondFromRange()">
+        </div>
+        <div class="form-group">
+          <label>Pilih Jangka Waktu (Tenor) &amp; Suku Bunga/Bulan</label>
+          <div class="tenor-grid" id="tenor-grid"></div>
+        </div>
+        <div class="highlight-box">
+          <div class="highlight-label">Estimasi Angsuran per Bulan</div>
+          <div class="highlight-amount" id="res-angsuran">Rp 0</div>
+          <div style="font-size:0.78rem; color:var(--bri-blue-dark); font-weight:600;" id="res-detail-bunga"></div>
+          <div class="summary-row">
+            <div class="summary-item"><span>Angsuran Pokok</span><strong id="res-pokok">Rp 0</strong></div>
+            <div class="summary-item"><span>Bunga / Bulan</span><strong id="res-bunga-rp">Rp 0</strong></div>
+            <div class="summary-item"><span>Total Pengembalian</span><strong id="res-total">Rp 0</strong></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Perbandingan Semua Tenor</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tenor</th><th>Bunga/Bln</th><th>Angsuran/Bln</th><th>Total Bayar</th></tr></thead>
+            <tbody id="tbody-compare"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-gaji" class="tab-content hidden">
+      <div class="card">
+        <div class="card-title">Kalkulator Rekomendasi Berdasarkan Gaji</div>
+        <div class="form-group"><label>Penghasilan Bersih / Gaji + Tunkin per Bulan (Rp)</label><input type="number" id="input-gaji" value="8000000" oninput="hitungKemampuanGaji()"></div>
+        <div class="form-group"><label>Potongan / Cicilan Pinjaman Berjalan (Rp)</label><input type="number" id="input-cicilan-lain" value="0" oninput="hitungKemampuanGaji()"></div>
+        <div class="form-group">
+          <label>Batas Maksimal Rasio Angsuran (DSR %)</label>
+          <select id="select-dsr" onchange="hitungKemampuanGaji()">
+            <option value="0.40">40% (Konservatif / Aman)</option>
+            <option value="0.50" selected>50% (Standar Karyawan/ASN)</option>
+            <option value="0.60">60% (Maksimal)</option>
+            <option value="0.70">70% (Khusus Payroll BRI)</option>
+          </select>
+        </div>
+        <div class="highlight-box">
+          <div class="highlight-label">Kapasitas Angsuran Maksimal Anda</div>
+          <div class="highlight-amount" id="res-kapasitas">Rp 0</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Plafon Maksimal yang Bisa Diambil</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tenor</th><th>Bunga</th><th>Maks. Plafon</th><th>Angsuran/Bln</th></tr></thead>
+            <tbody id="tbody-gaji"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-tabel" class="tab-content hidden">
+      <div class="card">
+        <div class="card-title"><span>Matriks Plafon &amp; Angsuran</span><span class="meta-note">Rp 50 Jt – 300 Jt</span></div>
+        <div class="form-group"><input type="text" id="search-plafond" placeholder="Cari nominal plafon (misal: 150)..." onkeyup="renderFullMatrix()"></div>
+        <div class="table-wrap"><table><thead id="thead-matrix"></thead><tbody id="tbody-matrix"></tbody></table></div>
+      </div>
+    </div>
+
+    <div id="tab-bunga" class="tab-content hidden">
+      <div class="card">
+        <div class="card-title"><span>Pengaturan Suku Bunga (% / Bulan)</span><span class="meta-note" id="settings-last-update">Default Awal (Sesuai Excel)</span></div>
+        <div id="bunga-alert" class="alert hidden"></div>
+        <div class="form-group"><label>Ubah persentase bunga flat per bulan:</label><div class="rate-edit-grid" id="rate-edit-grid"></div></div>
+        <div class="form-group"><label>Set Massal Semua Tenor</label><div style="display:flex;gap:8px;"><input type="number" step="0.01" id="bulk-rate-input" placeholder="Misal: 0.38"><button type="button" class="btn btn-outline" style="margin-top:0;width:160px;" onclick="applyBulkRate()">Terapkan</button></div></div>
+        <div class="form-group"><label>PIN Admin (Default: 1234)</label><input type="password" id="admin-pin" placeholder="Masukkan PIN untuk menyimpan"></div>
+        <button class="btn btn-primary" onclick="simpanBungaOffline()">Simpan Perubahan Bunga</button>
+        <button class="btn btn-outline" onclick="resetBungaOffline()">Reset ke Bunga Awal</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    const DEFAULT_RATES = {
+  "12": 0.38,
+  "24": 0.37,
+  "36": 0.37,
+  "48": 0.37,
+  "60": 0.37,
+  "72": 0.38,
+  "84": 0.38,
+  "96": 0.38,
+  "108": 0.39,
+  "120": 0.39,
+  "132": 0.4,
+  "144": 0.4,
+  "156": 0.41,
+  "168": 0.41,
+  "180": 0.41
+};
+    const STORAGE_KEY_RATES = 'BRI_LOAN_OFFLINE_RATES_V1';
+    const STORAGE_KEY_UPDATED = 'BRI_LOAN_OFFLINE_UPDATED_V1';
+    const STORAGE_KEY_PIN = 'BRI_LOAN_OFFLINE_PIN_V1';
+    let APP_CONFIG = { rates: Object.assign({}, DEFAULT_RATES), tenors: [12,24,36,48,60,72,84,96,108,120,132,144,156,168,180], plafondMin: 50000000, plafondMax: 300000000, plafondStep: 5000000, updatedAt: "Default Awal (Sesuai Excel)" };
+    let selectedPlafond = 100000000, selectedTenor = 60;
+    function loadOfflineConfig() { try { const sr = localStorage.getItem(STORAGE_KEY_RATES), su = localStorage.getItem(STORAGE_KEY_UPDATED); if (sr) APP_CONFIG.rates = Object.assign({}, DEFAULT_RATES, JSON.parse(sr)); if (su) APP_CONFIG.updatedAt = su; } catch (e) {} }
+    function formatRp(num) { return 'Rp ' + Math.round(num).toLocaleString('id-ID'); }
+    function hitungAngsuran(p, t, r) { const pokok = p / t, bunga = p * (r / 100); return { pokok, bunga, totalBulanan: pokok + bunga, totalBayar: (pokok + bunga) * t }; }
+    window.onload = function() { loadOfflineConfig(); initPlafondDropdown(); renderAllViews(); };
+    function renderAllViews() { document.getElementById('badge-updated').innerText = APP_CONFIG.updatedAt; document.getElementById('settings-last-update').innerText = APP_CONFIG.updatedAt; renderTenorPills(); updateSimulasi(); hitungKemampuanGaji(); renderFullMatrix(); renderRateEditor(); }
+    function switchTab(id, btn) { document.querySelectorAll('.tab-content').forEach(e => e.classList.add('hidden')); document.querySelectorAll('.tab-btn').forEach(e => e.classList.remove('active')); document.getElementById('tab-' + id).classList.remove('hidden'); btn.classList.add('active'); }
+    function initPlafondDropdown() { const sel = document.getElementById('select-plafond'); sel.innerHTML = ''; for (let p = APP_CONFIG.plafondMin; p <= APP_CONFIG.plafondMax; p += APP_CONFIG.plafondStep) { const o = document.createElement('option'); o.value = p; o.text = formatRp(p); if (p === selectedPlafond) o.selected = true; sel.appendChild(o); } }
+    function syncPlafondFromSelect() { selectedPlafond = parseInt(document.getElementById('select-plafond').value, 10); document.getElementById('range-plafond').value = selectedPlafond; updateSimulasi(); }
+    function syncPlafondFromRange() { selectedPlafond = parseInt(document.getElementById('range-plafond').value, 10); document.getElementById('select-plafond').value = selectedPlafond; updateSimulasi(); }
+    function renderTenorPills() { const g = document.getElementById('tenor-grid'); g.innerHTML = ''; APP_CONFIG.tenors.forEach(t => { const r = APP_CONFIG.rates[String(t)]; const d = document.createElement('div'); d.className = 'tenor-pill' + (t === selectedTenor ? ' active' : ''); d.innerHTML = '<div class="t-bln">' + t + ' Bln</div><div class="t-bunga">' + r + '%/bln</div>'; d.onclick = function() { selectedTenor = t; renderTenorPills(); updateSimulasi(); }; g.appendChild(d); }); }
+    function updateSimulasi() { const r = APP_CONFIG.rates[String(selectedTenor)], h = hitungAngsuran(selectedPlafond, selectedTenor, r); document.getElementById('res-angsuran').innerText = formatRp(h.totalBulanan); document.getElementById('res-detail-bunga').innerText = 'Tenor ' + selectedTenor + ' Bulan (' + (selectedTenor/12) + ' Tahun) • Bunga ' + r + '% / bulan'; document.getElementById('res-pokok').innerText = formatRp(h.pokok); document.getElementById('res-bunga-rp').innerText = formatRp(h.bunga); document.getElementById('res-total').innerText = formatRp(h.totalBayar); const tb = document.getElementById('tbody-compare'); tb.innerHTML = ''; APP_CONFIG.tenors.forEach(t => { const rt = APP_CONFIG.rates[String(t)], ht = hitungAngsuran(selectedPlafond, t, rt), tr = document.createElement('tr'); if (t === selectedTenor) tr.style.backgroundColor = '#E6F0FA'; tr.innerHTML = '<td>' + t + ' Bulan</td><td>' + rt + '%</td><td><strong>' + formatRp(ht.totalBulanan) + '</strong></td><td>' + formatRp(ht.totalBayar) + '</td>'; tb.appendChild(tr); }); }
+    function hitungKemampuanGaji() { const gaji = parseFloat(document.getElementById('input-gaji').value) || 0, cic = parseFloat(document.getElementById('input-cicilan-lain').value) || 0, dsr = parseFloat(document.getElementById('select-dsr').value) || 0.5, kap = Math.max(0, (gaji * dsr) - cic); document.getElementById('res-kapasitas').innerText = formatRp(kap); const tb = document.getElementById('tbody-gaji'); tb.innerHTML = ''; APP_CONFIG.tenors.forEach(t => { const r = APP_CONFIG.rates[String(t)]; let mp = 0, at = 0; for (let p = APP_CONFIG.plafondMin; p <= APP_CONFIG.plafondMax; p += APP_CONFIG.plafondStep) { const h = hitungAngsuran(p, t, r); if (h.totalBulanan <= kap) { mp = p; at = h.totalBulanan; } else break; } const tr = document.createElement('tr'); tr.innerHTML = '<td>' + t + ' Bulan</td><td>' + r + '%</td><td><strong>' + (mp > 0 ? formatRp(mp) : 'Belum mencukupi') + '</strong></td><td>' + (mp > 0 ? formatRp(at) : '-') + '</td>'; tb.appendChild(tr); }); }
+    function renderFullMatrix() { const th = document.getElementById('thead-matrix'), tb = document.getElementById('tbody-matrix'), kw = (document.getElementById('search-plafond').value || '').replace(/\D/g, ''); let hh = '<tr><th>PLAFOND</th>'; APP_CONFIG.tenors.forEach(t => { hh += '<th>' + t + ' Bln<br><small>(' + APP_CONFIG.rates[String(t)] + '%)</small></th>'; }); th.innerHTML = hh + '</tr>'; tb.innerHTML = ''; for (let p = APP_CONFIG.plafondMin; p <= APP_CONFIG.plafondMax; p += APP_CONFIG.plafondStep) { if (kw && !String(p).includes(kw) && !String(p / 1000000).includes(kw)) continue; let rh = '<tr><td>' + formatRp(p) + '</td>'; APP_CONFIG.tenors.forEach(t => { const h = hitungAngsuran(p, t, APP_CONFIG.rates[String(t)]); rh += '<td>' + Math.round(h.totalBulanan).toLocaleString('id-ID') + '</td>'; }); tb.innerHTML += rh + '</tr>'; } }
+    function renderRateEditor() { const g = document.getElementById('rate-edit-grid'); g.innerHTML = ''; APP_CONFIG.tenors.forEach(t => { const r = APP_CONFIG.rates[String(t)], d = document.createElement('div'); d.className = 'rate-item'; d.innerHTML = '<label>Tenor ' + t + ' Bln (' + (t/12) + ' Thn)</label><div class="rate-input-wrap"><input type="number" step="0.01" min="0" max="10" id="rate-input-' + t + '" value="' + r + '"><span>%</span></div>'; g.appendChild(d); }); }
+    function applyBulkRate() { const v = parseFloat(document.getElementById('bulk-rate-input').value); if (isNaN(v) || v < 0 || v > 10) { showBungaAlert('Masukkan persentase valid (0 - 10).', false); return; } APP_CONFIG.tenors.forEach(t => document.getElementById('rate-input-' + t).value = v); showBungaAlert('Nilai ' + v + '% diterapkan. Klik Simpan untuk menyimpan.', true); }
+    function showBungaAlert(m, ok) { const b = document.getElementById('bunga-alert'); b.className = 'alert ' + (ok ? 'alert-success' : 'alert-danger'); b.innerText = m; b.classList.remove('hidden'); }
+    function getValidPin() { return localStorage.getItem(STORAGE_KEY_PIN) || '1234'; }
+    function simpanBungaOffline() { if (document.getElementById('admin-pin').value.trim() !== getValidPin()) { showBungaAlert('PIN Admin salah!', false); return; } const nr = {}; for (let t of APP_CONFIG.tenors) { const v = parseFloat(document.getElementById('rate-input-' + t).value); if (isNaN(v) || v < 0 || v > 10) { showBungaAlert('Bunga tenor ' + t + ' tidak valid.', false); return; } nr[String(t)] = Number(v.toFixed(4)); } const now = new Date().toLocaleString('id-ID', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }); localStorage.setItem(STORAGE_KEY_RATES, JSON.stringify(nr)); localStorage.setItem(STORAGE_KEY_UPDATED, now); APP_CONFIG.rates = nr; APP_CONFIG.updatedAt = now; renderAllViews(); showBungaAlert('Perubahan bunga tersimpan di perangkat.', true); document.getElementById('admin-pin').value = ''; }
+    function resetBungaOffline() { if (document.getElementById('admin-pin').value.trim() !== getValidPin()) { showBungaAlert('PIN Admin salah!', false); return; } localStorage.removeItem(STORAGE_KEY_RATES); localStorage.removeItem(STORAGE_KEY_UPDATED); APP_CONFIG.rates = Object.assign({}, DEFAULT_RATES); APP_CONFIG.updatedAt = "Default Awal (Sesuai Excel)"; renderAllViews(); showBungaAlert('Suku bunga dikembalikan ke awal.', true); document.getElementById('admin-pin').value = ''; }
+  </script>
+</body>
+</html>
